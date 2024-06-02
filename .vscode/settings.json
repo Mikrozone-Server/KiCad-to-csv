@@ -1,0 +1,8 @@
+{
+    "pylint.args": [
+        "--disable=broad-exception-caught",
+        "--disable=missing-module-docstring",
+        "--disable=multiple-imports",
+        "--disable=unspecified-encoding"
+    ],
+}
