@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     # write csv file
     with open(args.output_file, "w", newline="") as csv_file:
-        writer = csv.writer(csv_file)
+        writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
 
         # write csv header
         writer.writerow(CSV_HEADER)
