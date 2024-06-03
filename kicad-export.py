@@ -3,10 +3,7 @@ import csv
 import argparse
 from kiutils.symbol import SymbolLib
 
-KI_VALUES = [
-    "ki_description",
-    "ki_keywords"
-]
+KI_VALUES = ["ki_description", "ki_keywords"]
 
 ALL_PROPERTIES = [
     "Reference",
@@ -28,33 +25,40 @@ ALL_PROPERTIES = [
     "Z-SYSCODE",
     "Assembly_Note",
     "Comment",
-    "ki_fp_filters"
+    "ki_fp_filters",
 ]
 
 CSV_HEADER = [
     "Lib_PATH+FILENAME",
     "SYMBOLNAME",
     "Description",
-    "Keywords"
+    "Keywords",
 ] + ALL_PROPERTIES
 
 
 if __name__ == "__main__":
     # process arguments
     parser = argparse.ArgumentParser(
-        description='KiCad library symbol exporter (CSV)', add_help=False
+        description="KiCad library symbol exporter (CSV)", add_help=False
     )
     parser.add_argument(
-        '-h', '--help', action='help',
-        help='Show this help message and exit'
+        "-h", "--help", action="help", help="Show this help message and exit"
     )
-    parser.add_argument('-i', '--input',
-        dest='input_dirfile', action='store',
-        help='Path to input directory or single file (.kicad_sym)', required=True
+    parser.add_argument(
+        "-i",
+        "--input",
+        dest="input_dirfile",
+        action="store",
+        help="Path to input directory or single file (.kicad_sym)",
+        required=True,
     )
-    parser.add_argument('-o', '--output', 
-        dest='output_file', action='store',
-        help='Output filename (.csv)', required=True
+    parser.add_argument(
+        "-o",
+        "--output",
+        dest="output_file",
+        action="store",
+        help="Output filename (.csv)",
+        required=True,
     )
 
     args = parser.parse_args()
@@ -67,17 +71,17 @@ if __name__ == "__main__":
         else:
             input_files = [
                 os.path.abspath(os.path.join(args.input_dirfile, f))
-                for f in os.listdir(args.input_dirfile) if f.endswith('.kicad_sym')
+                for f in os.listdir(args.input_dirfile)
+                if f.endswith(".kicad_sym")
             ]
     else:
         print(args.input_dirfile + " does not exists!")
         sys.exit(1)
 
-
     print("Start processing...")
 
     # write csv file
-    with open(args.output_file, 'w', newline='') as csv_file:
+    with open(args.output_file, "w", newline="") as csv_file:
         writer = csv.writer(csv_file)
 
         # write csv header
