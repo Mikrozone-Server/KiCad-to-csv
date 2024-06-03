@@ -110,7 +110,9 @@ if __name__ == "__main__":
                             row.append(p.value)
                         elif k not in KI_VALUES:
                             row.append("")
-                            print(f'"{s.entryName}": "{k}" is missing')
+                            print(
+                                f'{os.path.basename(symbol_lib.filePath)}:{s.entryName}: "{k}" is missing'
+                            )
 
                     # write row to csv
                     writer.writerow(row)
