@@ -45,20 +45,12 @@ if __name__ == "__main__":
         "-h", "--help", action="help", help="Show this help message and exit"
     )
     parser.add_argument(
-        "-i",
-        "--input",
-        dest="input_dirfile",
-        action="store",
+        "input_dirfile",
         help="Path to input directory or single file (.kicad_sym)",
-        required=True,
     )
     parser.add_argument(
-        "-o",
-        "--output",
-        dest="output_file",
-        action="store",
+        "output_file",
         help="Output filename (.csv)",
-        required=True,
     )
 
     args = parser.parse_args()

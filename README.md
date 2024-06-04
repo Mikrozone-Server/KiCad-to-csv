@@ -1,6 +1,7 @@
 # KiCad to CSV library parameters exporter
 
-Utility to export KiCad symbol's parameters from the symbol library to .csv format, even with user-defined fields.
+Utility to export KiCad symbol's parameters from the symbol library to `.csv` format, even with user-defined fields.
+![logo](docs/logo.png)
 
 
 ## Prerequisites
@@ -18,34 +19,29 @@ pip install -r requirements.txt
 ```
 
 
-## Using
+## Display help
 
-```sh
-# display help
-usage: kicad-export.py [-h] -i <file_or_dir> -o output_file
+```
+$ python3 kicad-export.py --help
+usage: kicad-export.py [-h] INPUT_DIR-FILE OUTPUT_CSV_FILE
 
-arguments:
-  -h | --help                 - Show this help message and exit
-  -i | --input <file_or_dir>  - Path to input directory or single file (.kicad_sym)
-  -o | --output <output_file> - Output filename (.csv)
+KiCad library symbol exporter (CSV)
 
+positional arguments:
+  INPUT_DIR-FILE   Path to input directory or single file (.kicad_sym)
+  OUTPUT_CSV_FILE  Output filename (.csv)
 
-# process single file
-python3 kicad-export.py -i <my-file.kicad_sym> -o my-file.csv
-
-# process all files in directory
-python3 kicad-export.py -i <path-to-kicad_sym-directory> -o my-dir.csv
+optional arguments:
+  -h, --help       Show this help message and exit
 ```
 
 
-### Example
+# Examples of usage
 
 ```sh
-python3 kicad-export.py -i tests/symbols -o output.csv
-Start processing...
-Processing done
+# process single file
+python3 kicad-export.py <my-file.kicad_sym> my-file.csv
 
-cat output.csv
-"Lib_PATH+FILENAME","SYMBOLNAME","Description","Keywords","Reference","Value","Footprint","Datasheet","Technology","MFG","MPN","Device_Marking","OC_LCSC","OC_MOUSER","OC_RS","OC_DISTRELEC","OC_TME","OC_FARNELL","OC_DIGIKEY","OC_SOS","Z-SYSCODE","Assembly_Note","Comment","ki_fp_filters"
-"tests/symbols/symbol.kicad_sym","PKLCS1212E4001-R1","SMD Piezo element non polarised, 65 dB (4kHz)","BZ","RE","PKLCS1212E4001-R1","SMD_Audio_Murata:SPK_1200X1200H300-2N_PLKCS_MURATA","https://www.farnell.com/datasheets/2157985.pdf","SMD","Murata","PKLCS1212E4001-R1","","","","","","","1192551","","","1813","","","SPK_1200X1200H300-2?_PLKCS_MURATA*"
+# process all files in directory
+python3 kicad-export.py <path-to-kicad_sym-directory> my-dir.csv
 ```

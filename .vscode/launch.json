@@ -13,9 +13,7 @@
             "justMyCode": true,
             "cwd": "${workspaceFolder}",
             "args": [
-                "-i",
                 "tests/symbols",
-                "-o",
                 "output.csv"
             ]
         }
