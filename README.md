@@ -1,4 +1,4 @@
-# KiCad to CSV library parameters exporter
+# KiCad to CSV library's parameters exporter (0.0.1)
 
 Utility to export KiCad symbol's parameters from the symbol library to `.csv` format, even with user-defined fields.
 ![logo](docs/logo.png)
@@ -23,16 +23,17 @@ pip install -r requirements.txt
 
 ```
 $ python3 kicad-export.py --help
-usage: kicad-export.py [-h] INPUT_DIR-FILE OUTPUT_CSV_FILE
+usage: kicad-export.py [-h] [-v] input_dirfile output_file
 
-KiCad library symbol exporter (CSV)
+KiCad to CSV library's parameters exporter
 
 positional arguments:
-  INPUT_DIR-FILE   Path to input directory or single file (.kicad_sym)
-  OUTPUT_CSV_FILE  Output filename (.csv)
+  input_dirfile  Path to input directory or single file (.kicad_sym)
+  output_file    Output filename (.csv)
 
 optional arguments:
-  -h, --help       Show this help message and exit
+  -h, --help     Show this help message and exit
+  -v, --version  Show program's version number and exit
 ```
 
 

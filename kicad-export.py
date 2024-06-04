@@ -3,6 +3,10 @@ import csv
 import argparse
 from kiutils.symbol import SymbolLib
 
+### VERSION
+__version_info__ = ('0', '0', '1')
+__version__ = '.'.join(__version_info__)
+
 KI_VALUES = ["ki_description", "ki_keywords"]
 
 ALL_PROPERTIES = [
@@ -39,10 +43,17 @@ CSV_HEADER = [
 if __name__ == "__main__":
     # process arguments
     parser = argparse.ArgumentParser(
-        description="KiCad library symbol exporter (CSV)", add_help=False
+        description="KiCad to CSV library's parameters exporter", add_help=False
     )
     parser.add_argument(
         "-h", "--help", action="help", help="Show this help message and exit"
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version="%(prog)s " + __version__,
+        help = "Show program's version number and exit"
     )
     parser.add_argument(
         "input_dirfile",
