@@ -8,11 +8,13 @@
             "name": "Python: Debug",
             "type": "python",
             "request": "launch",
-            "program": "kicad-export.py",
+            "program": "kicad-from-to-csv.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "cwd": "${workspaceFolder}",
             "args": [
+                "-a",
+                "export",
                 "tests/symbols",
                 "output.csv"
             ]

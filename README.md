@@ -1,6 +1,6 @@
-# KiCad to CSV library's parameters exporter (0.0.1)
+# KiCad to CSV library's parameters exporter
 
-Utility to export KiCad symbol's parameters from the symbol library to `.csv` format, even with user-defined fields.
+Utility to export KiCad symbols and footprints parameters from the symbol or footprint library to `.csv` format with user-defined fields.
 ![logo](docs/logo.png)
 
 
@@ -19,30 +19,34 @@ pip install -r requirements.txt
 ```
 
 
+# Usage
+
 ## Display help
 
 ```
-$ python3 kicad-export.py --help
-usage: kicad-export.py [-h] [-v] input_dirfile output_file
+$ python3 kicad-from-to-csv.py --help
+usage: kicad-from-to-csv.py [-h] [-d] [-v] -a {import,export} kicad_dirfile csv_dirfile
 
 KiCad to CSV library's parameters exporter
 
 positional arguments:
-  input_dirfile  Path to input directory or single file (.kicad_sym)
-  output_file    Output filename (.csv)
+  kicad_dirfile         Path to directory or single file (.kicad_sym|.pretty)
+  csv_dirfile           Path to directory or single file (.csv)
 
 optional arguments:
-  -h, --help     Show this help message and exit
-  -v, --version  Show program's version number and exit
+  -h, --help                    Show this help message and exit
+  -d, --debug                   Display debug output
+  -v, --version                 Show program's version number and exit
+  -a, --action {import|export}  Action to be used for processing (import|export)
 ```
 
 
-# Examples of usage
+## Export
 
 ```sh
 # process single file
-python3 kicad-export.py <my-file.kicad_sym> my-file.csv
+python3 kicad-from-to-csv.py -a export <my-file.kicad_sym> my-file.csv
 
 # process all files in directory
-python3 kicad-export.py <path-to-kicad_sym-directory> my-dir.csv
+python3 kicad-from-to-csv.py -a export <path-to-kicad_sym-directory> my-dir.csv
 ```
