@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Debug",
-            "type": "debugpy",
+            "type": "python",
             "request": "launch",
             "program": "kicad-export.py",
             "console": "integratedTerminal",
