@@ -1,6 +1,7 @@
 # KiCad to CSV library exporter
 
-Utility to export KiCad symbol libraries into CSV.
+Utility to export KiCad symbol's parameters from the symbol library to .csv format, even with user-defined fields.
+
 
 
 ## Prerequisites
