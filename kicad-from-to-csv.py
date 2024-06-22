@@ -2,12 +2,12 @@ import os, sys
 import csv
 import argparse
 import logging
-from kiutils.footprint import Footprint
+import re
+from kiutils.footprint import Footprint, Model
 from kiutils.symbol import SymbolLib
-from kiutils.items.fpitems import FpText
 
 ### VERSION
-__version_info__ = ("0", "1", "0")
+__version_info__ = ("0", "2", "0")
 __version__ = ".".join(__version_info__)
 
 # configure global logger
@@ -44,7 +44,11 @@ class CSVHandler:
         self._csv.writerow(row)
 
     def read(self) -> list:
-        return list(self._csv)
+        return next(self._csv, None)
+
+    def read_all(self):
+        for row in self._csv:
+            yield row
 
 
 class Footprints(Footprint):
@@ -66,8 +70,48 @@ class Footprints(Footprint):
         self.PROPERTIES = []
         super().__init__()
 
-    def items(self, file: str) -> list:
-        return [self.from_file(file)]
+    def _convert_number(self, number: str) -> float or int:
+        return float(number) if "." in number else int(number)
+
+    def create_model(self, smodel: str) -> list:
+        model = ["model"]
+
+        # regex pattern to match key-value pairs
+        pattern = re.compile(r"(\w+)=('.*?'|Coordinate\(.*?\)|\w+|\w+\(.*?\))")
+
+        # find all key-value pairs
+        matches = pattern.findall(smodel.strip()[6:-1])
+
+        for key, value in matches:
+            if key == "path":
+                model.append(value.strip("'"))
+            elif key == "hide" and value == "True":
+                model.append("hide")
+            elif value.startswith("Coordinate"):
+                # extract the values inside Coordinate()
+                coords = re.findall(r"-?\d+(?:\.\d+)?", value)
+                # pos is save as offset
+                model.append(
+                    [
+                        key if key != "pos" else "offset",
+                        ["xyz"] + [self._convert_number(coord) for coord in coords],
+                    ]
+                )
+            elif value.startswith("'") and value.endswith("'"):
+                # path
+                model.append(value.strip("'"))
+            elif value == "None":
+                model.append([key, None])
+            else:
+                model.append([key, value])
+
+        return Model().from_sexpr(model)
+
+    def load(self, path: str):
+        self.__dict__.update(self.from_file(path).__dict__)
+
+    def items(self, path: str = "") -> list:
+        return [self] if not path else [self.from_file(path)]
 
 
 class Symbols(SymbolLib):
@@ -100,8 +144,11 @@ class Symbols(SymbolLib):
         ]
         super().__init__()
 
-    def items(self, file: str) -> list:
-        return self.from_file(file).symbols
+    def items(self, path: str = "") -> list:
+        return self.symbols if not path else self.from_file(path).symbols
+
+    def load(self, path: str):
+        self.__dict__.update(self.from_file(path).__dict__)
 
 
 class Components:
@@ -187,7 +234,79 @@ class Components:
             LOGGER.debug("]")
 
     def update(self):
-        raise NotImplementedError("Import not implemented!")
+        # read header
+        properties = self._csv_handler.read()
+        # read first entry do to header verification
+        first_component = self._csv_handler.read()
+        self._sim_or_foot = (
+            Symbols() if first_component[0].endswith(".kicad_sym") else Footprints()
+        )
+        # check if properties are matching
+        for p in properties:
+            if (
+                p
+                not in self._COMMON_PROPERTIES
+                + self._sim_or_foot.ATTRIBUTES["root"]
+                + self._sim_or_foot.ATTRIBUTES["attributes"]
+                + self._sim_or_foot.PROPERTIES
+            ):
+                LOGGER.warning(f'Property "{p}" is missing')
+                # remove property from list
+                properties.remove(p)
+
+        LOGGER.debug("[")
+
+        # loop over entries
+        for l in [first_component] + list(self._csv_handler.read_all()):
+            # skip non existing files
+            if not os.path.exists(l[0]):
+                LOGGER.warning(l[0] + " does not exist, skipping...")
+                continue
+
+            try:
+                LOGGER.debug(f" {os.path.dirname(l[0])} = [")
+
+                # create symbols or footprints based on first component
+                self._sim_or_foot.load(l[0])
+                for i in self._sim_or_foot.items():
+                    # update required component only
+                    if l[1] != i.entryName:
+                        continue
+
+                    LOGGER.debug(f"  {l[1]} = {{")
+
+                    # create properties dictionary for quicker access
+                    props = {prop.key: prop for prop in i.properties}
+
+                    # update properties one by one
+                    for idx, p in enumerate(properties[2:], 2):
+                        # use update function based on property type
+                        if p in self._sim_or_foot.ATTRIBUTES["root"]:
+                            (
+                                setattr(i, p, l[idx])
+                                if p != "models"
+                                else setattr(
+                                    i,
+                                    p,
+                                    [self._sim_or_foot.create_model(l[idx])],
+                                )
+                            )
+                        elif p in self._sim_or_foot.ATTRIBUTES["attributes"]:
+                            setattr(i, p, l[idx])
+                        else:
+                            props[p].value = l[idx]
+                        LOGGER.debug(f'   "{p}": "{l[idx]}"')
+
+                    LOGGER.debug("  },")
+
+                # save changes
+                self._sim_or_foot.to_file(l[0])
+
+                LOGGER.debug(" ],")
+            except Exception as ex:
+                LOGGER.error(f'"Unable to process {l[0]}", err: {ex}')
+
+        LOGGER.debug("]")
 
 
 if __name__ == "__main__":
