@@ -248,7 +248,7 @@ if __name__ == "__main__":
         else:
             # search for .kicad_sym files without recursion
             kicad_dirfile.extend(
-                os.path.abspath(os.path.join(args.kicad_dirfile, f))
+                os.path.join(args.kicad_dirfile, f)
                 for f in os.listdir(args.kicad_dirfile)
                 if f.endswith(".kicad_sym")
             )
@@ -258,7 +258,7 @@ if __name__ == "__main__":
                 for root, dirs, files in os.walk(args.kicad_dirfile):
                     if root.endswith(".pretty"):
                         kicad_dirfile.extend(
-                            os.path.abspath(os.path.join(root, f))
+                            os.path.join(root, f)
                             for f in files
                             if f.endswith(".kicad_mod")
                         )
