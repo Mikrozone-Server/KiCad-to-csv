@@ -166,7 +166,11 @@ class Components:
                         ),
                         (
                             self._sim_or_foot.PROPERTIES,
-                            {prop.key: prop.value for prop in i.properties},
+                            (
+                                i.properties
+                                if isinstance(i.properties, dict)
+                                else {prop.key: prop.value for prop in i.properties}
+                            ),
                         ),
                     ]:
                         row += self._get_keys(f, i.entryName, e, v)
