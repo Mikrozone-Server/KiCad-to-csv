@@ -48,7 +48,7 @@ class CSVHandler:
 
 
 class Footprints(Footprint):
-    def __init__(self, files: list = []):
+    def __init__(self, files: str or list = []):
         self.files = files
         self.ATTRIBUTES = {
             "root": [
@@ -71,7 +71,7 @@ class Footprints(Footprint):
 
 
 class Symbols(SymbolLib):
-    def __init__(self, files: list = []):
+    def __init__(self, files: str or list = []):
         self.files = files
         self.ATTRIBUTES = {"root": [], "attributes": []}
         self.PROPERTIES = [
@@ -275,6 +275,10 @@ if __name__ == "__main__":
                 LOGGER.error(
                     f'"{input_file}" is not pointing to valid ".kicad_sym" or ".kicad_mod" file!'
                 )
+                sys.exit(1)
+        else:
+            if os.path.getsize(input_file) <= 0:
+                LOGGER.error(input_file + " is empty!")
                 sys.exit(1)
     else:
         LOGGER.error(input_file + " does not exists!")
