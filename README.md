@@ -1,8 +1,10 @@
 # KiCad to CSV library's parameters exporter
 
-Utility to export KiCad symbols and footprints parameters from the symbol or footprint library to `.csv` format with user-defined fields.
+Utility to export/import KiCad symbols and footprints parameters from the symbol or footprint library to `.csv` format with user-defined fields.
+
 ![logo](docs/logo.png)
 
+> Utility is not able to create new parameters, just update the existing one.
 
 ## Prerequisites
 
@@ -16,6 +18,8 @@ Utility to export KiCad symbols and footprints parameters from the symbol or foo
 
 ```sh
 pip install -r requirements.txt
+# or
+python3 -m pip install -r requirements.txt
 ```
 
 
@@ -49,4 +53,76 @@ python3 kicad-from-to-csv.py -a export <my-file.kicad_sym> my-file.csv
 
 # process all files in directory
 python3 kicad-from-to-csv.py -a export <path-to-kicad_sym-directory> my-dir.csv
+```
+
+
+## Import
+
+```sh
+python3 kicad-from-to-csv.py -a import <path-to-kicad_sym-directory> my-file.csv
+```
+
+
+# Development
+
+```sh
+# create virtual environment
+python3 -m venv .venv
+
+# activation
+## Linux
+source .venv/bin/activate
+## Windows
+.venv\Scripts\activate.bat
+```
+
+
+## Testing
+
+### Export
+
+```sh
+# footprint
+python3 kicad-from-to-csv.py -d -a export tests/footprints/footprint.pretty footprint.csv
+
+Processing...
+[
+ tests/footprints/footprint.pretty/footprint.kicad_mod = [
+  CAPAE830X1050N_Case-F = {
+   "description": "EIA: Case-F, METRIC: -, JEDEC: -, IPC: CAPAE830X1050N"
+   "models": "[Model(path='${KICAD7_3DMODEL_DIR}/SMD_Capacitor_Panasonic/CAPAE800X1050 Size-F.stp', pos=Coordinate(X=0, Y=0, Z=0), scale=Coordinate(X=1, Y=1, Z=1), rotate=Coordinate(X=-90, Y=0, Z=180), hide=False, opacity=None)]"
+   "allowMissingCourtyard": "False"
+   "boardOnly": "False"
+   "excludeFromBom": "False"
+   "excludeFromPosFiles": "False"
+   "type": "smd"
+  },
+ ],
+]
+Done
+```
+
+
+### Import
+```sh
+# modify description (EIA -> xxxEIA)
+sed -i "s/EIA/xxxEIA/" footprint.csv
+
+# update component
+python3 kicad-from-to-csv.py -d -a import . footprint.csv
+Processing...
+[
+ tests/footprints/footprint.pretty = [
+  CAPAE830X1050N_Case-F = {
+   "description": "xxxEIA: Case-F, METRIC: -, JEDEC: -, IPC: CAPAE830X1050N"
+   "models": "[Model(path='${KICAD7_3DMODEL_DIR}/SMD_Capacitor_Panasonic/CAPAE800X1050 Size-F.stp', pos=Coordinate(X=0, Y=0, Z=0), scale=Coordinate(X=1, Y=1, Z=1), rotate=Coordinate(X=-90, Y=0, Z=180), hide=False, opacity=None)]"
+   "allowMissingCourtyard": "False"
+   "boardOnly": "False"
+   "excludeFromBom": "False"
+   "excludeFromPosFiles": "False"
+   "type": "smd"
+  },
+ ],
+]
+Done
 ```
