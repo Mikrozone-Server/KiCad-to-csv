@@ -1,6 +1,6 @@
-# KiCad to CSV library's parameters exporter
+# KiCad librarie's parameters CSV handler
 
-Utility to export/import KiCad symbols and footprints parameters from the symbol or footprint library to `.csv` format with user-defined fields.
+Utility to export KiCad symbols and footprints parameters from the symbol or footprint library to `.csv` format and vice verse with user-defined fields.
 
 ![logo](docs/logo.png)
 
