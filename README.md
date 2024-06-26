@@ -1,8 +1,6 @@
 # KiCad librarie's parameters CSV handler
 
-Utility to export KiCad symbols and footprints parameters from the symbol or footprint library to `.csv` format and vice verse with user-defined fields.
-
-This python script help to export selected, or all KiCad's symbol or PCB footprint library elements parameters fields to the file format csv, which you can edit in your favourite table editor (Libre Office, Open Office,..) and next to import back to the KiCad libs.
+This python script help to export selected, or all KiCad's symbol/footprint library elements parameters fields into the file format 'csv'. This file could be it edited in your favourite table editor (Libre Office, Open Office, ..) and later imported back. All changes will be reflected in origin libraries.
 
 ![logo](docs/logo.png)
 
