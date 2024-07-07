@@ -163,6 +163,7 @@ class Components:
             self._csv_handler = CSVHandler(csv_file, export)
         except IOError as ex:
             LOGGER.error(f'"Unable to process {f}", err: {ex}')
+            raise ex
 
     def _get_keys(self, path: str, name: str, keys: list, items: dict) -> list:
         row = []
@@ -227,7 +228,6 @@ class Components:
 
                     LOGGER.debug("  },")
                 LOGGER.debug(" ],")
-
             except Exception as ex:
                 LOGGER.error(f'"Unable to process {f}", err: {ex}')
 
