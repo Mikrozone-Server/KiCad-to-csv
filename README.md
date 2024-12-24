@@ -6,13 +6,15 @@ This python script help to export selected, or all KiCad's symbol/footprint libr
 
 > Utility is not able to create new parameters, just update the existing one.
 > Works with KiCad version 7 only.
+  - Some version 8 features are supported already
 
 ## Prerequisites
 
 - Python 3.7 or higher
 - Python3-pip
 - `requirements.txt`
-  - [kiutils](https://github.com/mvnmgrx/kiutils)
+  - [kiutils](https://github.com/andy9a9/kiutils)
+    - We have to use own version due to lack of v8 features
 
 
 ## Installation

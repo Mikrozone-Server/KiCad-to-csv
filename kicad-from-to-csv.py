@@ -7,7 +7,7 @@ from kiutils.footprint import Footprint, Model
 from kiutils.symbol import SymbolLib
 
 ### VERSION
-__version_info__ = ("0", "2", "0")
+__version_info__ = ("0", "3", "0")
 __version__ = ".".join(__version_info__)
 
 # configure global logger
@@ -54,6 +54,7 @@ class CSVHandler:
 class Footprints(Footprint):
     def __init__(self, files: str or list = []):
         self.files = files
+        self._init()
         self.ATTRIBUTES = {
             "root": [
                 "description",
@@ -67,8 +68,27 @@ class Footprints(Footprint):
                 "type",
             ],
         }
-        self.PROPERTIES = []
-        super().__init__()
+        self.PROPERTIES = (
+            []
+            if (not self.generator_version or self.generator_version != "8.0")
+            else ["Description", "Footprint", "Datasheet", "Value", "Reference"]
+        )
+
+    def _init(self):
+        path = (
+            self.files[0]
+            if (isinstance(self.files, list) and len(self.files) > 0)
+            else self.files
+        )
+        try:
+            if path:
+                # create object here to prevent double constructor calling
+                self.load(path, Footprint())
+            else:
+                super().__init__()
+        except Exception as ex:
+            LOGGER.error(f'"Unable to load {path}", err: {ex}')
+            raise ex
 
     def _convert_number(self, number: str) -> float or int:
         return float(number) if "." in number else int(number)
@@ -107,8 +127,10 @@ class Footprints(Footprint):
 
         return Model().from_sexpr(model)
 
-    def load(self, path: str):
-        self.__dict__.update(self.from_file(path).__dict__)
+    def load(self, path: str, obj: object = None):
+        if not obj:
+            obj = self
+        self.__dict__.update(obj.from_file(path).__dict__)
 
     def items(self, path: str = "") -> list:
         return [self] if not path else [self.from_file(path)]
@@ -117,9 +139,14 @@ class Footprints(Footprint):
 class Symbols(SymbolLib):
     def __init__(self, files: str or list = []):
         self.files = files
+        self._init()
         self.ATTRIBUTES = {"root": [], "attributes": []}
         self.PROPERTIES = [
-            "ki_description",
+            (
+                "ki_description"
+                if (not self.generator_version or self.generator_version != "8.0")
+                else "Description"
+            ),
             "ki_keywords",
             "Reference",
             "Value",
@@ -142,13 +169,30 @@ class Symbols(SymbolLib):
             "Comment",
             "ki_fp_filters",
         ]
-        super().__init__()
+
+    def _init(self):
+        path = (
+            self.files[0]
+            if (isinstance(self.files, list) and len(self.files) > 0)
+            else self.files
+        )
+        try:
+            if path:
+                # create object here to prevent double constructor calling
+                self.load(path, SymbolLib())
+            else:
+                super().__init__()
+        except Exception as ex:
+            LOGGER.error(f'"Unable to load {path}", err: {ex}')
+            raise ex
 
     def items(self, path: str = "") -> list:
         return self.symbols if not path else self.from_file(path).symbols
 
-    def load(self, path: str):
-        self.__dict__.update(self.from_file(path).__dict__)
+    def load(self, path: str, obj: object = None):
+        if not obj:
+            obj = self
+        self.__dict__.update(obj.from_file(path).__dict__)
 
 
 class Components:
@@ -177,6 +221,10 @@ class Components:
         for entry in set(keys).symmetric_difference(items.keys()):
             LOGGER.warning(f'{os.path.basename(path)}:{name}: "{entry}" is missing')
         return row
+
+    class Prop:
+        def __init__(self, value):
+            self.value = value
 
     def export(self):
         # write csv header
@@ -239,7 +287,9 @@ class Components:
         # read first entry do to header verification
         first_component = self._csv_handler.read()
         self._sim_or_foot = (
-            Symbols() if first_component[0].endswith(".kicad_sym") else Footprints()
+            Symbols(first_component[0])
+            if first_component[0].endswith(".kicad_sym")
+            else Footprints(first_component[0])
         )
         # check if properties are matching
         for p in properties:
@@ -276,7 +326,11 @@ class Components:
                     LOGGER.debug(f"  {l[1]} = {{")
 
                     # create properties dictionary for quicker access
-                    props = {prop.key: prop for prop in i.properties}
+                    props = (
+                        {key: self.Prop(value) for key, value in i.properties.items()}
+                        if isinstance(i.properties, dict)
+                        else {prop.key: prop for prop in i.properties}
+                    )
 
                     # update properties one by one
                     for idx, p in enumerate(properties[2:], 2):

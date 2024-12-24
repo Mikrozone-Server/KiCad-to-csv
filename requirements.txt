@@ -1,1 +1,1 @@
-kiutils
+kiutils @ https://github.com/andy9a9/kiutils/releases/download/v1.4.8/kiutils-1.4.8-py3-none-any.whl
