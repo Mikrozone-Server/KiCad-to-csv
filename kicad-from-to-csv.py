@@ -7,12 +7,48 @@ from kiutils.footprint import Footprint, Model
 from kiutils.symbol import SymbolLib
 
 ### VERSION
-__version_info__ = ("0", "3", "0")
+__version_info__ = ("0", "3", "1")
 __version__ = ".".join(__version_info__)
 
 # configure global logger
 logging.basicConfig(stream=sys.stderr, level=logging.INFO, format="%(message)s")
 LOGGER = logging.getLogger("global_logger")
+
+
+class KiCadVersion:
+    def __init__(self, version_string: str = None):
+        self.version_string = version_string
+        self.major = 0
+        self.minor = 0
+        self._parse_version()
+
+    def _parse_version(self):
+        """Parse version string into major and minor components"""
+        if not self.version_string:
+            return
+
+        try:
+            parts = self.version_string.split('.')
+            self.major = int(parts[0]) if len(parts) > 0 else 0
+            self.minor = int(parts[1]) if len(parts) > 1 else 0
+        except (ValueError, AttributeError):
+            LOGGER.warning(f'Unable to parse version string: "{self.version_string}"')
+
+    def __lt__(self, other):
+        if isinstance(other, str):
+            other = KiCadVersion(other)
+        return (self.major, self.minor) < (other.major, other.minor)
+
+    def __le__(self, other):
+        if isinstance(other, str):
+            other = KiCadVersion(other)
+        return (self.major, self.minor) <= (other.major, other.minor)
+
+    def __bool__(self):
+        return self.version_string is not None and self.version_string != ""
+
+    def __str__(self):
+        return self.version_string or "unknown"
 
 
 class CSVHandler:
@@ -70,7 +106,7 @@ class Footprints(Footprint):
         }
         self.PROPERTIES = (
             []
-            if (not self.generator_version or self.generator_version != "8.0")
+            if (KiCadVersion(getattr(self, 'generator_version', None)) < "8.0")
             else ["Description", "Footprint", "Datasheet", "Value", "Reference"]
         )
 
@@ -144,7 +180,7 @@ class Symbols(SymbolLib):
         self.PROPERTIES = [
             (
                 "ki_description"
-                if (not self.generator_version or self.generator_version != "8.0")
+                if (KiCadVersion(getattr(self, 'generator_version', None)) < "8.0")
                 else "Description"
             ),
             "ki_keywords",
