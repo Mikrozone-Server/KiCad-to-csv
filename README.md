@@ -119,9 +119,20 @@ Columns not present in a given library file are silently ignored on import.
 python3 -m venv .venv
 source .venv/bin/activate   # Linux / macOS
 .venv\Scripts\activate.bat  # Windows
+pip install -e .[dev]       # installs ruff (linter) and pytest (tests)
 ```
 
-### Testing
+### Automated tests
+
+Run the full test suite:
+
+```sh
+pytest tests/ -v
+```
+
+Tests are parametrized and auto-discover all fixture files under `tests/symbols/` and `tests/footprints/`, so dropping in new `.kicad_sym` or `.pretty` directories is enough to cover them.
+
+### Manual testing
 
 #### Symbol export
 
