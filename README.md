@@ -1,129 +1,189 @@
-# KiCad librarie's parameters CSV handler
+# KiCad library parameters CSV handler
 
-This python script help to export selected, or all KiCad's symbol/footprint library elements parameters fields into the file format 'csv'. This file could be it edited in your favourite table editor (Libre Office, Open Office, ..) and later imported back. All changes will be reflected in origin libraries.
+Export KiCad symbol/footprint library element parameters to CSV, edit them in your favourite spreadsheet editor (LibreOffice, Excel, …), then import back. All changes are written directly to the original library files.
 
 ![logo](docs/logo.png)
 
-> Utility is not able to create new parameters, just update the existing one.
-> Works with KiCad version 7 only.
+> The utility updates existing parameters only — it cannot create new ones.
 
 ## Prerequisites
 
-- Python 3.7 or higher
-- Python3-pip
-- `requirements.txt`
-  - [kiutils](https://github.com/mvnmgrx/kiutils)
+- Python 3.10 or higher
+- tkinter (for the GUI — usually bundled with Python; on Linux install `python3-tk`)
 
+No third-party packages required.
 
 ## Installation
 
 ```sh
-pip install -r requirements.txt
-# or
-python3 -m pip install -r requirements.txt
+# Clone and enter the repo
+git clone <repo-url>
+cd KiCad-to-csv
+
+# Optional: create a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate        # Linux / macOS
+.venv\Scripts\activate.bat       # Windows
 ```
 
+## Usage
 
-# Usage
+### Graphical interface
 
-## Display help
+The GUI lets you choose the type (Symbol / Footprint), action (Export / Import), source paths, log level and optional file logging — then click **Start**.
+
+![GUI](docs/gui.png)
+
+```sh
+python3 kicad-from-to-csv.py -g
+```
+
+### Command-line interface
 
 ```
-$ python3 kicad-from-to-csv.py --help
-usage: kicad-from-to-csv.py [-h] [-d] [-v] -a {import,export} kicad_dirfile csv_dirfile
-
-KiCad to CSV library's parameters exporter
+usage: kicad-from-to-csv.py [-h] [-v] [-d] [-g] [-l]
+                            [-a {import,export}] [-t {symbol,footprint}]
+                            [kicad_dirfile] [csv_dirfile]
 
 positional arguments:
   kicad_dirfile         Path to directory or single file (.kicad_sym|.pretty)
   csv_dirfile           Path to directory or single file (.csv)
 
-optional arguments:
-  -h, --help                    Show this help message and exit
-  -d, --debug                   Display debug output
-  -v, --version                 Show program's version number and exit
-  -a, --action {import|export}  Action to be used for processing (import|export)
+options:
+  -h, --help            show this help message and exit
+  -v, --version         Show program version and exit
+  -d, --debug           Display debug output (includes per-component JSON diff on import)
+  -g, --gui             Launch the graphical user interface
+  -l, --enable-logging  Write a timestamped log file to the current directory
+  -a {import,export}    Action to perform — required for CLI mode
+  -t {symbol,footprint} Library type to process — required for CLI mode
 ```
-
-
-## Export
-
-```sh
-# process single file
-python3 kicad-from-to-csv.py -a export <my-file.kicad_sym> my-file.csv
-
-# process all files in directory
-python3 kicad-from-to-csv.py -a export <path-to-kicad_sym-directory> my-dir.csv
-```
-
-
-## Import
-
-```sh
-python3 kicad-from-to-csv.py -a import <path-to-kicad_sym-directory> my-file.csv
-```
-
-
-# Development
-
-```sh
-# create virtual environment
-python3 -m venv .venv
-
-# activation
-## Linux
-source .venv/bin/activate
-## Windows
-.venv\Scripts\activate.bat
-```
-
-
-## Testing
 
 ### Export
 
 ```sh
-# footprint
-python3 kicad-from-to-csv.py -d -a export tests/footprints/footprint.pretty footprint.csv
+# Single symbol file
+python3 kicad-from-to-csv.py -a export -t symbol my-lib.kicad_sym output.csv
 
-Processing...
-[
- tests/footprints/footprint.pretty/footprint.kicad_mod = [
-  CAPAE830X1050N_Case-F = {
-   "description": "EIA: Case-F, METRIC: -, JEDEC: -, IPC: CAPAE830X1050N"
-   "models": "[Model(path='${KICAD7_3DMODEL_DIR}/SMD_Capacitor_Panasonic/CAPAE800X1050 Size-F.stp', pos=Coordinate(X=0, Y=0, Z=0), scale=Coordinate(X=1, Y=1, Z=1), rotate=Coordinate(X=-90, Y=0, Z=180), hide=False, opacity=None)]"
-   "allowMissingCourtyard": "False"
-   "boardOnly": "False"
-   "excludeFromBom": "False"
-   "excludeFromPosFiles": "False"
-   "type": "smd"
-  },
- ],
-]
-Done
+# All symbol files in a directory
+python3 kicad-from-to-csv.py -a export -t symbol path/to/symbols/ output.csv
+
+# Footprint library (.pretty directory)
+python3 kicad-from-to-csv.py -a export -t footprint path/to/lib.pretty output.csv
 ```
 
-
 ### Import
-```sh
-# modify description (EIA -> xxxEIA)
-sed -i "s/EIA/xxxEIA/" footprint.csv
 
-# update component
-python3 kicad-from-to-csv.py -d -a import . footprint.csv
-Processing...
-[
- tests/footprints/footprint.pretty = [
-  CAPAE830X1050N_Case-F = {
-   "description": "xxxEIA: Case-F, METRIC: -, JEDEC: -, IPC: CAPAE830X1050N"
-   "models": "[Model(path='${KICAD7_3DMODEL_DIR}/SMD_Capacitor_Panasonic/CAPAE800X1050 Size-F.stp', pos=Coordinate(X=0, Y=0, Z=0), scale=Coordinate(X=1, Y=1, Z=1), rotate=Coordinate(X=-90, Y=0, Z=180), hide=False, opacity=None)]"
-   "allowMissingCourtyard": "False"
-   "boardOnly": "False"
-   "excludeFromBom": "False"
-   "excludeFromPosFiles": "False"
-   "type": "smd"
-  },
- ],
+```sh
+# Symbols — kicad_dirfile can be '.' to resolve paths relative to CWD
+python3 kicad-from-to-csv.py -a import -t symbol . output.csv
+
+# Footprints
+python3 kicad-from-to-csv.py -a import -t footprint . output.csv
+```
+
+Paths stored in the `Lib_PATH+FILENAME` column are resolved relative to the supplied `kicad_dirfile` directory. Absolute paths are also accepted.
+
+### Debug output
+
+Pass `-d` to print additional diagnostic information:
+
+- **Export** — a JSON snapshot of every component after loading.
+- **Import** — a per-component JSON diff showing only the properties that will change, printed just before each component is updated:
+
+```
+[DEBUG  ] {
+  "4001": {
+    "Description": {"from": "Quad Nor 2 inputs", "to": "Quad Nor 2 inputs v2"},
+    "Value":       {"from": "4001",               "to": "4001B"}
+  }
+}
+[DEBUG  ] Updating symbol: 4001
+[DEBUG  ]   Description: 'Quad Nor 2 inputs' -> 'Quad Nor 2 inputs v2'
+```
+
+## CSV format
+
+| Column | Description |
+|---|---|
+| `Lib_PATH+FILENAME` | Relative (or absolute) path to the source library file |
+| `COMPONENT` / `FOOTPRINT` | Component name within the file |
+| `Description` | Maps to `ki_description` (v6/v7) or `Description` (v8/v9) automatically |
+| *(all other columns)* | Property names as they appear in the library file |
+
+Columns not present in a given library file are silently ignored on import.
+
+## Development
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate   # Linux / macOS
+.venv\Scripts\activate.bat  # Windows
+pip install -e .[dev]       # installs ruff (linter) and pytest (tests)
+```
+
+### Automated tests
+
+Run the full test suite:
+
+```sh
+pytest tests/ -v
+```
+
+Tests are parametrized and auto-discover all fixture files under `tests/symbols/` and `tests/footprints/`, so dropping in new `.kicad_sym` or `.pretty` directories is enough to cover them.
+
+### Manual testing
+
+#### Symbol export
+
+```sh
+python3 kicad-from-to-csv.py -d -a export -t symbol tests/symbols/symbol.kicad_sym output.csv
+```
+
+```
+[DEBUG  ] Parsing symbol file: tests/symbols/symbol.kicad_sym
+[INFO   ] Found 1 symbols in symbol.kicad_sym
+[DEBUG  ] [
+  {
+    "tests/symbols/symbol.kicad_sym": [
+      {
+        "name": "PKLCS1212E4001-R1",
+        "Reference": "RE",
+        "Value": "PKLCS1212E4001-R1",
+        "Footprint": "SMD_Audio_Murata:SPK_1200X1200H300-2N_PLKCS_MURATA",
+        "Datasheet": "https://www.farnell.com/datasheets/2157985.pdf",
+        "Technology": "SMD",
+        "MFG": "Murata",
+        "MPN": "PKLCS1212E4001-R1",
+        "OC_FARNELL": "1192551",
+        "Z-SYSCODE": "1813",
+        "ki_keywords": "BZ",
+        "ki_description": "SMD Piezo element non polarised, 65 dB (4kHz)",
+        "ki_fp_filters": "SPK_1200X1200H300-2?_PLKCS_MURATA*"
+      }
+    ]
+  }
 ]
-Done
+[INFO   ] Exporting 1 symbols to output.csv
+Done.
+```
+
+#### Symbol import
+
+```sh
+# Edit the Description field in output.csv, then import back
+python3 kicad-from-to-csv.py -d -a import -t symbol . output.csv
+```
+
+```
+[INFO   ] Updating 1 symbol(s) in tests/symbols/symbol.kicad_sym
+[DEBUG  ] {
+  "PKLCS1212E4001-R1": {
+    "Description": {"from": "SMD Piezo element non polarised, 65 dB (4kHz)", "to": "SMD Piezo element non polarised, 70 dB (4kHz)"}
+  }
+}
+[DEBUG  ] Updating symbol: PKLCS1212E4001-R1
+[DEBUG  ]   Description: 'SMD Piezo element non polarised, 65 dB (4kHz)' -> 'SMD Piezo element non polarised, 70 dB (4kHz)'
+[INFO   ] Import completed: 1 file(s) written
+Done.
 ```

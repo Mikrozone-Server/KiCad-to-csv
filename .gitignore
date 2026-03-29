@@ -1,2 +1,14 @@
 .DS_Store
 .venv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Unit test
+.pytest_cache/
+
+# Project files
+/*.csv
+/*.log

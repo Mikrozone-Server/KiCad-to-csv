@@ -1,0 +1,31 @@
+[project]
+name = "Kicad From-To CSV Converter"
+version = "0.3.0"
+description = "A python script to export/import KiCad's symbol/footprint library' elementes into CSV file"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.1.0"
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["B", "C", "E", "I", "F", "W"]
+
+ignore = [
+    "C901",  # too complex
+]
+
+[tool.ruff.format]
+indent-style = "space"
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+combine-as-imports = true
+split-on-trailing-comma = false

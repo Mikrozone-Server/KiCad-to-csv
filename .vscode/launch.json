@@ -5,16 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Debug",
-            "type": "python",
+            "name": "Python: Debug GUI",
+            "type": "debugpy",
             "request": "launch",
             "program": "kicad-from-to-csv.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "cwd": "${workspaceFolder}",
             "args": [
+                "-g"
+            ]
+        },
+        {
+            "name": "Python: Debug CLI",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "kicad-from-to-csv.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "-d",
                 "-a",
                 "export",
+                "-t",
+                "symbol",
                 "tests/symbols",
                 "output.csv"
             ]
